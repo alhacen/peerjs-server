@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const body_parser_1 = __importDefault(require("body-parser"));
-const cors_1 = __importDefault(require("cors"));
+// import cors from "cors";
 const express_1 = __importDefault(require("express"));
 const app_json_1 = __importDefault(require("../../app.json"));
 const auth_1 = require("./middleware/auth");
@@ -14,7 +14,19 @@ exports.Api = ({ config, realm, messageHandler }) => {
     const authMiddleware = new auth_1.AuthMiddleware(config, realm);
     const app = express_1.default.Router();
     const jsonParser = body_parser_1.default.json();
-    app.use(cors_1.default());
+    // app.use(cors());
+    app.use(function (req, res, next) {
+        // res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        const allowedOrigins = ['http://127.0.0.1:3000', 'http://localhost:3000', 'https://alhacen.ddns.net'];
+        const origin = req.headers.origin;
+        if (allowedOrigins.includes(origin)) {
+            res.setHeader('Access-Control-Allow-Origin', origin);
+        }
+        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+        res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+        res.setHeader('Access-Control-Allow-Credentials', "true");
+        next();
+    });
     app.get("/", (_, res) => {
         res.send(app_json_1.default);
     });
